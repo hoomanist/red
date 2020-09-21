@@ -70,13 +70,14 @@ struct target red_connect(struct result credential){
 
 void red_prompt(struct result credential){
     struct target server;
+    char *prompt = "$ ";
+
     server = red_connect(credential);
     for(;;){
-        char *prompt = "$ ";
-        char *input;
+        char *input= malloc(64 * sizeof(char *));
         input = readline(prompt);
         send(server.sock , input , strlen(input) , 0 ); 
-    
+        free(input);
     }
     
 }
