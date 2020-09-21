@@ -3,11 +3,22 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
+#include <netinet/in.h> 
+#include <sys/socket.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <arpa/inet.h>
 
 struct result
 {
     int port;
     char *host;
+};
+
+struct target 
+{ 
+    int sock;
+    struct sockaddr_in address;  
 };
 
 struct result red_parse(char *input){
@@ -33,9 +44,41 @@ struct result red_parse(char *input){
     return output;
 }
 
+struct target red_connect(struct result credential){
+    int sock;
+    struct sockaddr_in serv_addr;
+    if((sock = socket(AF_INET, SOCK_STREAM, 0) ) == 0){
+        perror("socket()"); 
+        exit(EXIT_FAILURE); 
+    }
+    serv_addr.sin_family = AF_INET; 
+    serv_addr.sin_port = htons(credential.port);
+    if(inet_pton(AF_INET, credential.host, &serv_addr.sin_addr)<=0){ 
+        perror("inet_pton()");
+        exit(EXIT_FAILURE);
+    }
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0){ 
+        perror("connect()");
+        exit(EXIT_FAILURE);
+    }
+    struct target output;
+    output.address = serv_addr;
+    output.sock = sock;
+    return output; 
+}
+
+
 void red_prompt(struct result credential){
-    printf("Address: %s\n", credential.host);
-    printf("Port: %d\n", credential.port);
+    struct target server;
+    server = red_connect(credential);
+    for(;;){
+        char *prompt = "$ ";
+        char *input;
+        input = readline(prompt);
+        send(server.sock , input , strlen(input) , 0 ); 
+    
+    }
+    
 }
 
 int main(int argc, char *argv[]){
