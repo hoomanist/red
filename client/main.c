@@ -8,19 +8,22 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <arpa/inet.h>
-
+// maximum command size
 #define ARG_MAX 64 * sizeof(char *)
+
+// target server credentials(port and ip)
 struct result
 {
     int port;
     char *host;
 };
+// a socket credentials for loop 
 struct target 
 { 
     int sock;
     struct sockaddr_in address;  
 };
-
+// parse a string to a `result' struct
 struct result red_parse(char *input){
     char **tokens ;
     tokens = malloc(2 * sizeof(char *));
@@ -40,7 +43,7 @@ struct result red_parse(char *input){
     free(tokens);
     return output;
 }
-
+// connect to server
 struct target red_connect(struct result credential){
     int sock;
     struct sockaddr_in serv_addr;
@@ -50,6 +53,7 @@ struct target red_connect(struct result credential){
     }
     serv_addr.sin_family = AF_INET; 
     serv_addr.sin_port = htons(credential.port);
+    // ip in form of string to binary representation
     if(inet_pton(AF_INET, credential.host, &serv_addr.sin_addr)<=0){ 
         perror("inet_pton()");
         exit(EXIT_FAILURE);
@@ -66,15 +70,18 @@ struct target red_connect(struct result credential){
 
 void red_prompt(struct result credential){
     struct target server;
-    char *prompt = "$ ";
+    char *prompt = "$ "; // prompt shape
 
     for(;;){
         server = red_connect(credential);
         char *input= malloc(ARG_MAX);
+        // get input using gnu readline
         input = readline(prompt);
+        // new line character removal
         char *pos;
         if ((pos=strchr(input, '\n')) != NULL)
             *pos = ' ';
+        // send the input
         send(server.sock , input , ARG_MAX , 0 ); 
         free(input);
     }
@@ -83,10 +90,11 @@ void red_prompt(struct result credential){
 int main(int argc, char *argv[]){
     int opt;
     struct result credential;
+    // cli arguments
     while ((opt = getopt(argc, argv, "c")) != -1)
     {
         switch (opt){
-            case 'c':{
+            case 'c':{ // c for connect
                 credential = red_parse(argv[2]);
                 red_prompt(credential);
                 break;

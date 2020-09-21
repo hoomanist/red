@@ -13,9 +13,10 @@ int main(int argc, char *argv[]){
     int sock, client, opt, port;
     struct sockaddr_in address; 
     int addrlen = sizeof(address);
+    // cli arguments
     while ((opt = getopt(argc, argv, "p")) != -1) {
         switch (opt){
-        case 'p':
+        case 'p': // p for port
             port = atoi(argv[2]);break;
         default:
             port = 5000;break;
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]){
         }
         int len = read( client , buffer, ARG_MAX); 
         setbuf(stdout, NULL);
-        buffer[len+1] = '\0';
+        buffer[len+1] = '\0'; // termination code
         printf("%s",buffer );
         free(buffer);
         close(client);
