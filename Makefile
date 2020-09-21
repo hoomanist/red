@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS=-g -Wall -Wextra 
+CFLAGS=-g -Wall -Wextra -Wmisleading-indentation -Wimplicit-fallthrough
 
 all:
 	$(CC) $(CFLAGS) -lreadline client/main.c -o red
