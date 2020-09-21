@@ -9,6 +9,9 @@
 #include <readline/history.h>
 #include <arpa/inet.h>
 
+#define ARG_MAX 64 * sizeof(char *)
+
+
 struct result
 {
     int port;
@@ -72,10 +75,11 @@ void red_prompt(struct result credential){
     struct target server;
     char *prompt = "$ ";
 
-    server = red_connect(credential);
     for(;;){
-        char *input= malloc(64 * sizeof(char *));
-        input = readline(prompt);
+        server = red_connect(credential);
+
+        char *input= malloc(ARG_MAX);
+        sprintf(input , "%s\n", readline(prompt));
         send(server.sock , input , strlen(input) , 0 ); 
         free(input);
     }
