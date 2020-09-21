@@ -25,7 +25,6 @@ struct target
 };
 
 struct result red_parse(char *input){
-    int i = 0;
     char **tokens ;
     tokens = malloc(2 * sizeof(char *));
     char *token;
@@ -34,10 +33,8 @@ struct result red_parse(char *input){
         exit(EXIT_FAILURE);
     }
     token = strtok(input, ":");
-    while (token != NULL)
-    {
+    for(int i=0; token!=NULL; i++){
         tokens[i] = token;
-        i++;
         token = strtok(NULL, ":");
     }
     struct result output;
@@ -79,8 +76,11 @@ void red_prompt(struct result credential){
         server = red_connect(credential);
 
         char *input= malloc(ARG_MAX);
-        sprintf(input , "%s\n", readline(prompt));
-        send(server.sock , input , strlen(input) , 0 ); 
+        input = readline(prompt);
+        char *pos;
+        if ((pos=strchr(input, '\n')) != NULL)
+            *pos = ' ';
+        send(server.sock , input , ARG_MAX , 0 ); 
         free(input);
     }
     

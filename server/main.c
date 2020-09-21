@@ -48,9 +48,10 @@ int main(int argc, char *argv[]){
             perror("accept"); 
             exit(EXIT_FAILURE); 
         }
-        read( client , buffer, ARG_MAX); 
+        int len = read( client , buffer, ARG_MAX); 
         setbuf(stdout, NULL);
-        printf("%s\n",buffer );
+        buffer[len+1] = '\0';
+        printf("%s",buffer );
         free(buffer);
         close(client);
     }
