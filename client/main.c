@@ -10,14 +10,11 @@
 #include <arpa/inet.h>
 
 #define ARG_MAX 64 * sizeof(char *)
-
-
 struct result
 {
     int port;
     char *host;
 };
-
 struct target 
 { 
     int sock;
@@ -67,14 +64,12 @@ struct target red_connect(struct result credential){
     return output; 
 }
 
-
 void red_prompt(struct result credential){
     struct target server;
     char *prompt = "$ ";
 
     for(;;){
         server = red_connect(credential);
-
         char *input= malloc(ARG_MAX);
         input = readline(prompt);
         char *pos;
@@ -83,23 +78,23 @@ void red_prompt(struct result credential){
         send(server.sock , input , ARG_MAX , 0 ); 
         free(input);
     }
-    
 }
 
 int main(int argc, char *argv[]){
     int opt;
     struct result credential;
-
     while ((opt = getopt(argc, argv, "c")) != -1)
     {
         switch (opt){
-        case 'c':
-            credential = red_parse(argv[2]);red_prompt(credential);break;
-        default:
-            printf("Usage: red [-c] [ip:port]\n");
-            break;
+            case 'c':{
+                credential = red_parse(argv[2]);
+                red_prompt(credential);
+                break;
+            }
+            default:{
+                printf("Usage: red [-c] [ip:port]\n");
+                break;
+            }
         }
     }
-    
-
 }
