@@ -8,6 +8,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <arpa/inet.h>
+
 // maximum command size
 #define ARG_MAX 64 * sizeof(char *)
 

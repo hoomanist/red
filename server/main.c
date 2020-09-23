@@ -6,8 +6,19 @@
 #include <string.h> 
 #include <limits.h>
 
-
 #define ARG_MAX 64 * sizeof(char *)
+#define DELIM " \t\n\r"
+#define output_buffer 1024 * 1024 * 4
+
+char **red_convertion(char *line){
+    char **tokens = malloc(ARG_MAX); 
+    char *token = strtok(line, DELIM);
+    for(int i = 0; token != NULL ;i++){
+        tokens[i] = token;
+        token = strtok(NULL, DELIM);
+    }
+    return tokens;
+}
 
 int main(int argc, char *argv[]){
     int sock, client, opt, port;
@@ -22,7 +33,7 @@ int main(int argc, char *argv[]){
             port = 5000;break;
         }
     }
-
+    // ipv4 TCP socket
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == 0){ 
         perror("socket()"); 
         exit(EXIT_FAILURE); 
@@ -52,7 +63,9 @@ int main(int argc, char *argv[]){
         int len = read( client , buffer, ARG_MAX); 
         setbuf(stdout, NULL);
         buffer[len+1] = '\0'; // termination code
-        printf("%s",buffer );
+        char **arguments = red_convertion(buffer);
+        printf("%s", arguments[0]);
+        free(arguments);
         free(buffer);
         close(client);
     }
