@@ -5,10 +5,45 @@
 #include <netinet/in.h> 
 #include <string.h> 
 #include <limits.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 #define ARG_MAX 64 * sizeof(char *)
 #define DELIM " \t\n\r"
 
+struct spawn {
+    char text[4096];
+    int status;
+};
+
+struct spawn red_spawn(char **argv) {
+  int status;
+  int link[2];
+  char text[4096];
+  if (pipe(link)==-1){
+    perror("pipe");
+    exit(EXIT_FAILURE);
+  }
+  switch(fork()) {
+    case -1: perror("fork"); exit(EXIT_FAILURE);
+    case 0:
+        dup2 (link[1], STDOUT_FILENO);
+        close(link[0]);
+        close(link[1]);
+        execvp(argv[0], argv);
+        perror("execvp");
+        _exit(EXIT_FAILURE);
+    default:
+
+      close(link[1]);
+      int nbytes = read(link[0], text, sizeof(text));
+      wait(&status); /*TODO: set $? to the status*/
+  }
+  struct spawn output;
+  output.status = status;
+  strncpy(output.text, text, sizeof(text));
+  return output;
+}
 
 char **red_convertion(char *line, int *counter){
     int i;
@@ -66,11 +101,11 @@ int main(int argc, char *argv[]){
         setbuf(stdout, NULL);
         buffer[len+1] = '\0'; // termination code
         char **arguments = red_convertion(buffer, &counter);
-        printf("%s\n", arguments[0]);
+        struct spawn answer;
+        answer = red_spawn(arguments);
+        send(client , answer.text , strlen(answer.text) , 0 ); 
+        free(arguments);
         free(buffer);
-        for(int i = 0; i < counter; i++) {
-            free(arguments[i]);
-        }
         close(client);
     }
 }

@@ -74,6 +74,8 @@ void red_prompt(struct result credential){
     char *prompt = "$ "; // prompt shape
 
     for(;;){
+        char *buffer = malloc(4096);
+        int valread;
         server = red_connect(credential);
         char *input= malloc(ARG_MAX);
         // get input using gnu readline
@@ -83,8 +85,12 @@ void red_prompt(struct result credential){
         if ((pos=strchr(input, '\n')) != NULL)
             *pos = ' ';
         // send the input
-        send(server.sock , input , ARG_MAX , 0 ); 
+        send(server.sock , input , ARG_MAX , 0 );
+        valread = read( server.sock , buffer, 4096); 
+        buffer[valread+1] = '\0';
+        printf("%s", buffer);
         free(input);
+        free(buffer);
     }
 }
 
