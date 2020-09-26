@@ -8,7 +8,7 @@
 
 #define ARG_MAX 64 * sizeof(char *)
 #define DELIM " \t\n\r"
-#define output_buffer 1024 * 1024 * 4
+
 
 char **red_convertion(char *line){
     char **tokens = malloc(ARG_MAX); 
